@@ -1,4 +1,5 @@
 # MD5 Python 2 implementation
+# coding=UTF-8
 # Copyright (C) 2013  Filippo Valsorda
 #
 # This program is free software: you can redistribute it and/or modify
@@ -39,14 +40,17 @@ class MD5():
     k = [int(math.floor(abs(math.sin(i + 1)) * (2 ** 32))) for i in range(64)]
 
     def __init__(self, message):
+        # MD5 works in 512-bit blocks. 64*(8 bit byte)==512. So that's why we use 64.
+        # For more details and information, see: https://en.wikipedia.org/wiki/MD5#Pseudocode
         length = struct.pack('<Q', len(message) * 8)
-        while len(message) > 64:
-            self._handle(message[:64])
-            message = message[64:]
         message += '\x80'
-        message += '\x00' * ((64 - len(length) - len(message) % 64) % 64)
+        message += '\x00' * ((64 - len(length) - (len(message) % 64) ) % 64)
         message += length
+
+        assert len( message ) % 64 == 0
+
         while len(message):
+            # Bite off whole 64-character chunks and handle them.
             self._handle(message[:64])
             message = message[64:]
 
@@ -84,5 +88,12 @@ class MD5():
         return binascii.hexlify(self.digest()).decode()
 
 if __name__ == "__main__":
-    s = 'thequickbrownfoxjumpedoverthelazydog'
-    print MD5(s).hexdigest()
+    s1 = 'thequickbrownfoxjumpedoverthelazydog'
+    assert MD5(s1).hexdigest() == 'df14e4d5469e801dbc8e1df4eebd97b3'
+    s2 = '\xff\xff'
+    assert MD5(s2).hexdigest() == 'ab2a0d28de6b77ffdd6c72afead099ab'
+    s3 = '😦 😧 😈 👿 😮 😬 😐 😕 😯 😶 😇 😏'
+    assert MD5(s3).hexdigest() == '83162541e5329195409c925314250bc5'
+    print 'It works!'
+
+
