@@ -82,3 +82,7 @@ class MD5():
 
     def hexdigest(self):
         return binascii.hexlify(self.digest()).decode()
+
+if __name__ == "__main__":
+    s = 'thequickbrownfoxjumpedoverthelazydog'
+    print MD5(s).hexdigest()
