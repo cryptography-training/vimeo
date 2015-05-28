@@ -40,14 +40,13 @@ class MD5():
     k = [int(math.floor(abs(math.sin(i + 1)) * (2 ** 32))) for i in range(64)]
 
     def __init__(self, message):
-        # MD5 works in 512-bit blocks. 64*(8 bit byte)==512. So that's why we use 64.
-        # For more details and information, see: https://en.wikipedia.org/wiki/MD5#Pseudocode
+        # MD5 works in 512 bit (64 byte) blocks. Apply padding and process each block.
         length = struct.pack('<Q', len(message) * 8)
         message += '\x80'
-        message += '\x00' * ((64 - len(length) - (len(message) % 64) ) % 64)
+        message += '\x00' * ((64 - len(length) - (len(message) % 64)) % 64)
         message += length
 
-        assert len( message ) % 64 == 0
+        assert len(message) % 64 == 0
 
         while len(message):
             # Bite off whole 64-character chunks and handle them.
